@@ -7,30 +7,28 @@
   <link rel="icon" href="/icon.png" sizes="any">
   <link rel="icon" href="/icon.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #06060B;
-      --surface:   #101019;
-      --surface2:  #121217;
-      --border:    rgba(255,255,255,0.06);
-      --purple:    #7c3aed;
-      --purple-lt: #a78bfa;
-      --text:      #f0f0f0;
-      --text-dim:  rgba(255,255,255,0.45);
-      --text-mute: rgba(255,255,255,0.3);
-      --gold:      #fbbf24;
-      --silver:    #94a3b8;
-      --bronze:    #cd7f32;
-      --green:     #4ade80;
+      --bg:        #000000;
+      --surface:   #0d0d0d;
+      --surface2:  #1a1a1a;
+      --border:    rgba(255,255,255,0.12);
+      --purple:    #ffffff;
+      --purple-lt: #d4d4d4;
+      --text:      #fafafa;
+      --text-dim:  rgba(255,255,255,0.6);
+      --text-mute: rgba(255,255,255,0.4);
+      --gold:      #ffffff;
+      --silver:    #d4d4d4;
+      --bronze:    #a3a3a3;
+      --green:     #ffffff;
     }
 
     html { scroll-behavior: smooth; }
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       font-size: 12px;
@@ -49,9 +47,7 @@
     /* ── HEADER ───────────────────────────────────────── */
     .hdr {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(6,6,11,0.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
       height: 56px;
       display: flex; align-items: center; justify-content: space-between;
@@ -127,7 +123,7 @@
       transition: all 0.15s;
     }
     .side-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
-    .side-link.active { color: var(--purple-lt); background: rgba(124,58,237,0.1); }
+    .side-link.active { color: #fff; background: rgba(255,255,255,0.1); }
     .side-link svg { width: 18px; height: 18px; flex-shrink: 0; }
     .sidebar .side-sep { height: 1px; background: var(--border); margin: 8px 8px; }
     .side-foot { margin-top: auto; font-size: 10px; color: var(--text-mute); padding: 8px 12px; }
@@ -160,7 +156,7 @@
       display: flex; align-items: center; gap: 10px;
       padding: 8px 12px; cursor: pointer; transition: background 0.12s;
     }
-    .srch-drop-row:hover { background: rgba(124,58,237,0.1); }
+    .srch-drop-row:hover { background: rgba(255,255,255,0.08); }
     .srch-drop-row img {
       width: 38px; height: 52px; border-radius: 6px; object-fit: cover;
       flex-shrink: 0; background: var(--surface2);
@@ -178,7 +174,7 @@
       color: var(--purple-lt); text-align: center; cursor: pointer;
       border-top: 1px solid var(--border); transition: background 0.12s;
     }
-    .srch-drop .sd-cta:hover { background: rgba(124,58,237,0.1); }
+    .srch-drop .sd-cta:hover { background: rgba(255,255,255,0.08); }
     .srch-drop .sd-hd {
       padding: 8px 12px 4px; font-size: 10px; font-weight: 700;
       letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-mute);
@@ -194,7 +190,7 @@
       transition: all 0.15s;
     }
     .srch-filters button.on {
-      background: var(--purple); border-color: var(--purple); color: #fff;
+      background: var(--purple); border-color: var(--purple); color: #000;
     }
     /* dedicated search page (empty query) */
     .srch-page { max-width: 480px; margin: 0 auto; }
@@ -233,9 +229,9 @@
     .hero-body > * { animation: fadeUp 0.5s ease; }
     .spotlight-label {
       display: inline-flex; align-items: center; gap: 6px; width: fit-content;
-      background: rgba(124,58,237,0.2);
-      border: 1px solid rgba(124,58,237,0.4);
-      color: #c084fc;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
       font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px;
       padding: 6px 14px; border-radius: 999px; margin-bottom: 12px;
     }
@@ -262,24 +258,23 @@
     .hero::before {
       content: ''; position: absolute; z-index: 1; right: 0; bottom: 0; left: 0;
       height: 120px; pointer-events: none;
-      background: linear-gradient(to top, rgba(6,6,11,0.75), transparent);
+      background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
     }
     .btn-pri {
       display: inline-flex; align-items: center; gap: 7px;
       padding: 11px 24px; border-radius: 12px;
-      font-size: 13px; font-weight: 700; color: #fff; cursor: pointer; border: none;
+      font-size: 13px; font-weight: 700; color: #000; cursor: pointer; border: none;
       background: linear-gradient(135deg, var(--purple), var(--purple-lt));
-      box-shadow: 0 6px 24px rgba(124,58,237,0.35);
+      box-shadow: 0 6px 24px rgba(255,255,255,0.15);
       transition: filter 0.15s, transform 0.15s;
     }
-    .btn-pri:hover { filter: brightness(1.08); }
+    .btn-pri:hover { filter: brightness(0.92); }
     .btn-pri:active { transform: scale(0.96); }
     .btn-sec {
       display: inline-flex; align-items: center; gap: 7px;
       padding: 11px 20px; border-radius: 12px;
       font-size: 13px; font-weight: 700; color: var(--text); cursor: pointer;
       background: rgba(255,255,255,0.08); border: 1px solid var(--border);
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       transition: background 0.15s, transform 0.15s;
     }
     .btn-sec:hover { background: rgba(255,255,255,0.16); }
@@ -321,9 +316,9 @@
       transition: all 0.15s;
     }
     .genre-pill:hover, .genre-pill.active {
-      background: rgba(124,58,237,0.2);
-      border-color: var(--purple);
-      color: var(--purple-lt);
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.3);
+      color: #fff;
     }
 
     /* ── SECTION ─────────────────────────────────────── */
@@ -365,7 +360,7 @@
       transition: border-color 0.2s, transform 0.2s;
       cursor: pointer;
     }
-    .card:hover { border-color: rgba(124,58,237,0.4); transform: translateY(-2px); }
+    .card:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-2px); }
     .card-img {
       position: relative; aspect-ratio: 2/3; overflow: hidden;
     }
@@ -381,16 +376,16 @@
     }
     .card-badge {
       position: absolute; top: 6px; left: 6px;
-      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      background: rgba(0,0,0,0.55);
       border-radius: 5px; padding: 2px 6px;
       font-size: 9px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.5px; color: rgba(255,255,255,0.7);
+      letter-spacing: 0.5px; color: rgba(255,255,255,0.8);
     }
     .card-score {
       position: absolute; top: 6px; right: 6px;
-      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      background: rgba(0,0,0,0.55);
       border-radius: 5px; padding: 2px 5px;
-      font-size: 9px; font-weight: 700; color: var(--gold);
+      font-size: 9px; font-weight: 700; color: #fff;
       display: flex; align-items: center; gap: 2px;
     }
     .card-info { padding: 8px 10px; }
@@ -401,12 +396,12 @@
       overflow: hidden; margin-bottom: 4px;
       transition: color 0.15s;
     }
-    .card:hover .card-title { color: var(--purple-lt); }
+    .card:hover .card-title { color: #fff; }
     .card-watch {
       display: flex; align-items: center; justify-content: center; gap: 4px;
       padding: 5px 10px; margin-top: 4px;
       background: linear-gradient(135deg, var(--purple), var(--purple-lt));
-      border-radius: 7px; font-size: 11px; font-weight: 700; color: #fff;
+      border-radius: 7px; font-size: 11px; font-weight: 700; color: #000;
       transition: opacity 0.15s;
     }
     .card:hover .card-watch { opacity: 0.9; }
@@ -490,9 +485,9 @@
       text-align: center; cursor: pointer; transition: all 0.15s;
     }
     .ep-card:hover, .ep-card.active {
-      border-color: var(--purple); background: rgba(124,58,237,0.1);
+      border-color: #fff; background: rgba(255,255,255,0.1);
     }
-    .ep-card .ep-num { font-size: 14px; font-weight: 800; color: var(--purple-lt); }
+    .ep-card .ep-num { font-size: 14px; font-weight: 800; color: #fff; }
     .ep-card .ep-lbl { font-size: 9px; color: var(--text-mute); }
 
     /* ── SEASON TABS ─────────────────────────────────── */
@@ -504,7 +499,7 @@
       border-radius: 8px; font-size: 10px; font-weight: 600;
       color: var(--text-dim); cursor: pointer; transition: all 0.15s;
     }
-    .season-btn:hover, .season-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .season-btn:hover, .season-btn.active { background: var(--purple); border-color: var(--purple); color: #000; }
 
     /* ── CAST ───────────────────────────────────────── */
     .cast-row { display: flex; gap: 12px; overflow-x: auto; padding: 8px 0; scrollbar-width: none; }
@@ -527,12 +522,12 @@
       border-radius: 10px; font-size: 11px; font-weight: 500; color: var(--text);
       cursor: pointer; transition: all 0.15s; width: 100%;
     }
-    .server-btn:hover { border-color: var(--purple); background: rgba(124,58,237,0.08); }
+    .server-btn:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.06); }
     .server-btn .svr-icon {
       width: 28px; height: 28px; border-radius: 7px;
       background: linear-gradient(135deg, var(--purple), var(--purple-lt));
       display: flex; align-items: center; justify-content: center;
-      font-size: 9px; font-weight: 900; color: #fff; flex-shrink: 0;
+      font-size: 9px; font-weight: 900; color: #000; flex-shrink: 0;
     }
     .server-btn .svr-name { flex: 1; text-align: left; }
     .server-btn .svr-arrow { color: var(--text-dim); font-size: 14px; }
@@ -550,7 +545,7 @@
       border-radius: 20px; font-size: 10px; font-weight: 600;
       color: var(--text-dim); cursor: pointer; transition: all 0.15s; white-space: nowrap;
     }
-    .svr-tab:hover, .svr-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .svr-tab:hover, .svr-tab.active { background: var(--purple); border-color: var(--purple); color: #000; }
     .player-wrap {
       position: relative; width: 100%;
       aspect-ratio: 16/9;
@@ -583,9 +578,9 @@
       border-radius: 5px; font-size: 8px; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.5px;
     }
-    .type-chip.tv { background: rgba(74,222,128,0.15); color: var(--green); }
-    .type-chip.movie { background: rgba(96,165,250,0.15); color: #60a5fa; }
-    .type-chip.ona  { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    .type-chip.tv { background: rgba(255,255,255,0.12); color: #fff; }
+    .type-chip.movie { background: rgba(255,255,255,0.12); color: #fff; }
+    .type-chip.ona  { background: rgba(255,255,255,0.12); color: #fff; }
 
     /* ── UTILITIES ─────────────────────────────────── */
     .back-btn {
@@ -769,9 +764,9 @@ function poster(id) {
 }
 function scoreColor(s) {
   const n = parseFloat(s);
-  if (n >= 8) return 'var(--gold)';
-  if (n >= 6) return 'var(--silver)';
-  return '#f87171';
+  if (n >= 8) return '#ffffff';
+  if (n >= 6) return '#cfcfcf';
+  return '#888888';
 }
 function typeClass(t) {
   if (t === 'tv') return 'tv';
@@ -848,7 +843,7 @@ function searchCard(item) {
     <div class="sc-thumb">
       <img src="${posterUrl}" alt="${title}" loading="lazy" onerror="this.src='${poster(id)}'">
       <span class="type-chip ${typeClass(type)}" style="position:absolute;top:5px;left:5px">${typeLabel(type)}</span>
-      ${ss ? `<span style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);border-radius:5px;padding:2px 5px;font-size:9px;font-weight:700;color:${scoreColor(ss)}">★ ${ss}</span>` : ''}
+      ${ss ? `<span style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.55);border-radius:5px;padding:2px 5px;font-size:9px;font-weight:700;color:${scoreColor(ss)}">★ ${ss}</span>` : ''}
     </div>
     <div class="sc-info">
       <div class="sc-title">${title}</div>
@@ -922,7 +917,7 @@ function hero(items) {
   return `<section class="hero fade-in" id="hero" data-count="${slides.length}">
     ${slides.map((s,i) => `
       <div class="slide${i===0?' active':''}" data-i="${i}" data-title="${esc(s.title)}" data-type="${s.type}" data-id="${s.id}" data-slug="${s.slug}" style="background:var(--surface)">
-        ${s.backdrop ? `<img src="${s.backdrop}" alt="">` : ''}
+        ${s.backdrop ? `<img src="${s.backdrop}" alt="" decoding="async">` : ''}
       </div>`).join('')}
     <div class="hero-body">
       <div class="spotlight-label"><span class="lb-num" id="hero-num">1</span> Spotlight</div>
@@ -940,7 +935,7 @@ function hero(items) {
     <div class="hero-thumbs" id="hero-thumbs">
       ${slides.map((s,i) => `
         <button class="hero-thumb${i===0?' active':''}" data-i="${i}" title="${esc(s.title)}">
-          ${s.backdrop ? `<img src="${s.backdrop}" alt="">` : '<span style="display:block;width:100%;height:100%"></span>'}
+          ${s.backdrop ? `<img src="${s.backdrop}" alt="" decoding="async">` : '<span style="display:block;width:100%;height:100%"></span>'}
         </button>`).join('')}
     </div>` : ''}
   </section>`;
@@ -1154,9 +1149,9 @@ async function viewAnime(slug, tmdbId, type, season, episode) {
 
   $app.innerHTML = hdr('home') + `
     <button class="back-btn" onclick="history.back()">${I.back} Back</button>
-    <div class="detail-back"><img src="${backdrop}" alt="${detail.judul}" onerror="this.style.display='none'"></div>
+    <div class="detail-back"><img src="${backdrop}" alt="${detail.judul}" decoding="async" onerror="this.style.display='none'"></div>
     <div class="detail-hero fade-in">
-      <div class="detail-poster"><img src="${posterUrl}" alt="${detail.judul}" onerror="this.src='${poster(tmdbId)}'"></div>
+      <div class="detail-poster"><img src="${posterUrl}" alt="${detail.judul}" decoding="async" onerror="this.src='${poster(tmdbId)}'"></div>
       <div class="detail-info">
         <span class="type-chip ${typeClass(type)}" style="margin-bottom:6px;display:inline-block">${typeLabel(type)}</span>
         <h1 class="detail-title">${detail.judul}</h1>
@@ -1191,7 +1186,7 @@ async function viewAnime(slug, tmdbId, type, season, episode) {
     <section class="section fade-in">
       <div class="section-hd"><h2 class="section-title">Cast</h2></div>
       <div class="cast-row">${cast.map(c =>
-        `<div class="cast-card"><img src="${c.foto_profil || poster(Math.random())}" alt="${c.nama}" onerror="this.src='https://picsum.photos/seed/actor/100/100'"><div class="cname">${c.nama}</div><div class="cchar">${c.peran}</div></div>`
+        `<div class="cast-card"><img src="${c.foto_profil || poster(Math.random())}" alt="${c.nama}" loading="lazy" decoding="async" onerror="this.src='https://picsum.photos/seed/actor/100/100'"><div class="cname">${c.nama}</div><div class="cchar">${c.peran}</div></div>`
       ).join('')}</div>
     </section>` : ''}
 
@@ -1214,7 +1209,7 @@ async function viewAnime(slug, tmdbId, type, season, episode) {
         const stype = item.jenis === 'TV Series' ? 'tv' : 'movie';
         const stitle = encodeURIComponent((item.judul||'Unknown').replace(/\s+/g,'-'));
         return `<div class="sim-card" onclick="location.hash='#!/anime/${stitle}/${item.id_tmdb}/${stype}/1/1'">
-          <div class="sim-thumb"><img src="${item.poster_url||poster(item.id_tmdb)}" alt="${item.judul}" onerror="this.src='${poster(item.id_tmdb)}'"></div>
+          <div class="sim-thumb"><img src="${item.poster_url||poster(item.id_tmdb)}" alt="${item.judul}" loading="lazy" decoding="async" onerror="this.src='${poster(item.id_tmdb)}'"></div>
           <div class="sim-title">${item.judul}</div>
         </div>`;
       }).join('')}</div>
