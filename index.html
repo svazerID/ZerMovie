@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZerAnime — Anime Streaming Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #06060B;
+      --surface:    #101019;
+      --surface2:   #121217;
+      --border:     #1F1F23;
+      --purple:     #351B65;
+      --purple-lt:  #4A2690;
+      --text:       #E0E0E0;
+      --text-dim:   #888899;
+      --text-mute:  #555566;
+      --radius:     12px;
+      --radius-sm:  8px;
+      --gap:        8px;
+      --section-pad: 24px 16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 11px;
+      line-height: 1.4;
+      min-height: 100vh;
+    }
+
+    /* ── Scrollbar ────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--purple); }
+
+    /* ── Header ───────────────────────────────────────── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(6,6,11,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .logo {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 24px; height: 24px;
+      background: var(--purple);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 900;
+      color: #fff;
+    }
+    .logo span { color: var(--purple-lt); }
+
+    .header-search {
+      flex: 1;
+      max-width: 320px;
+      position: relative;
+    }
+    .header-search input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 12px 6px 32px;
+      font-size: 11px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .header-search input::placeholder { color: var(--text-mute); }
+    .header-search input:focus { border-color: var(--purple); }
+    .header-search svg {
+      position: absolute; left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-mute);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+    }
+    .header-nav a {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .header-nav a:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    /* ── Hero Spotlight ───────────────────────────────── */
+    .hero {
+      position: relative;
+      height: 280px;
+      overflow: hidden;
+      margin: 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.35) saturate(1.2);
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, rgba(6,6,11,0.97) 35%, rgba(6,6,11,0.4) 70%, transparent 100%);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 20px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--purple);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      width: fit-content;
+      margin-bottom: 10px;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: #ff6b9d;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .hero-title {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+      margin-bottom: 4px;
+    }
+    .hero-meta {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .hero-meta .sep { color: var(--border); }
+    .hero-desc {
+      font-size: 10px;
+      color: var(--text-dim);
+      line-height: 1.5;
+      max-width: 400px;
+      margin-bottom: 14px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--purple);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--purple-lt); transform: translateY(-1px); }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--purple); color: var(--purple-lt); }
+
+    /* ── Section ──────────────────────────────────────── */
+    .section {
+      padding: var(--section-pad);
+    }
+    .section + .section { padding-top: 0; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-title::before {
+      content: '';
+      width: 3px; height: 12px;
+      background: var(--purple);
+      border-radius: 2px;
+    }
+    .section-link {
+      font-size: 10px;
+      color: var(--purple-lt);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .section-link:hover { text-decoration: underline; }
+
+    /* ── Genre Pills ──────────────────────────────────── */
+    .genre-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 0 16px 12px;
+      scrollbar-width: none;
+    }
+    .genre-scroll::-webkit-scrollbar { display: none; }
+    .genre-pill {
+      flex-shrink: 0;
+      padding: 5px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .genre-pill:hover, .genre-pill.active {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: #fff;
+    }
+
+    /* ── Poster Grid ──────────────────────────────────── */
+    .poster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+    }
+    .poster-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+      position: relative;
+    }
+    .poster-card:hover {
+      border-color: var(--purple);
+      transform: translateY(-2px);
+    }
+    .poster-thumb {
+      position: relative;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      background: var(--surface2);
+    }
+    .poster-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    .poster-card:hover .poster-thumb img { transform: scale(1.04); }
+    .ep-badge {
+      position: absolute;
+      bottom: 4px;
+      left: 4px;
+      background: rgba(6,6,11,0.85);
+      color: var(--text);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+    }
+    .ep-badge.new {
+      background: var(--purple);
+      color: #fff;
+    }
+    .score-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: rgba(6,6,11,0.85);
+      color: #ffd43b;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .quick-watch {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      opacity: 0;
+      background: var(--purple);
+      color: #fff;
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .poster-card:hover .quick-watch {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .poster-info {
+      padding: 6px 7px;
+    }
+    .poster-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .poster-sub {
+      font-size: 9px;
+      color: var(--text-mute);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .status-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .status-dot.ongoing { background: #4ade80; }
+    .status-dot.completed { background: var(--text-mute); }
+    .status-dot.upcoming { background: #60a5fa; }
+
+    /* ── List variant ─────────────────────────────────── */
+    .anime-list { display: flex; flex-direction: column; gap: 6px; }
+    .anime-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .anime-row:hover { border-color: var(--purple); }
+    .anime-row .row-thumb {
+      width: 40px; height: 54px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--surface2);
+    }
+    .anime-row .row-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .anime-row .row-info { flex: 1; min-width: 0; }
+    .anime-row .row-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .anime-row .row-meta {
+      font-size: 9px;
+      color: var(--text-mute);
+      margin-top: 2px;
+    }
+    .anime-row .row-ep {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--purple-lt);
+      flex-shrink: 0;
+    }
+
+    /* ── Ranked list ──────────────────────────────────── */
+    .ranked-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .ranked-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .ranked-card:hover { border-color: var(--purple); }
+    .rank-num {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--border);
+      line-height: 1;
+      flex-shrink: 0;
+      width: 16px;
+    }
+    .ranked-card:nth-child(1) .rank-num { color: #ffd43b; }
+    .ranked-card:nth-child(2) .rank-num { color: #94a3b8; }
+    .ranked-card:nth-child(3) .rank-num { color: #cd7f32; }
+    .ranked-thumb {
+      width: 36px; height: 48px;
+      border-radius: 5px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--surface2);
+    }
+    .ranked-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .ranked-info { flex: 1; min-width: 0; }
+    .ranked-info .r-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ranked-info .r-meta {
+      font-size: 9px;
+      color: var(--text-mute);
+      margin-top: 2px;
+    }
+
+    /* ── Footer ────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 24px 16px;
+      border-top: 1px solid var(--border);
+      color: var(--text-mute);
+      font-size: 10px;
+      margin-top: 16px;
+    }
+    .footer a { color: var(--purple-lt); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    /* ── Responsive ────────────────────────────────────── */
+    @media (min-width: 640px) {
+      .poster-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+      .hero { height: 340px; }
+      .hero-title { font-size: 28px; }
+      .hero-desc { -webkit-line-clamp: 3; }
+    }
+    @media (min-width: 1024px) {
+      .poster-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); }
+      .hero { height: 380px; margin: 20px 24px; }
+      .section { padding: 24px; }
+      .genre-scroll { padding: 0 24px 14px; }
+      .header { padding: 0 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ─────────────────────────────────── -->
+  <header class="header">
+    <a class="logo" href="#">
+      <div class="logo-icon">Z</div>
+      Zer<span>Anime</span>
+    </a>
+    <div class="header-search">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" placeholder="Search anime, genre, season…">
+    </div>
+    <nav class="header-nav">
+      <a href="#">Home</a>
+      <a href="#">Movies</a>
+      <a href="#">Genres</a>
+      <a href="#">Schedule</a>
+    </nav>
+  </header>
+
+  <!-- ── Hero Spotlight ──────────────────────────── -->
+  <section class="hero" id="hero-spotlight">
+    <div class="hero-bg" id="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Featured</div>
+      <h1 class="hero-title" id="hero-title">Loading…</h1>
+      <div class="hero-meta">
+        <span id="hero-type">TV</span>
+        <span class="sep">•</span>
+        <span id="hero-year">2024</span>
+        <span class="sep">•</span>
+        <span id="hero-eps">12 eps</span>
+        <span class="sep">•</span>
+        <span id="hero-score">★ 8.7</span>
+      </div>
+      <p class="hero-desc" id="hero-desc">A young swordsman discovers a hidden world beyond the veil, where ancient spirits grant extraordinary powers to those brave enough to wield them.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn btn-primary" id="hero-watch-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch Now
+        </a>
+        <a href="#" class="btn btn-secondary" id="hero-detail-btn">Details</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Genre Pills ───────────────────────────── -->
+  <div class="genre-scroll" id="genre-row">
+    <button class="genre-pill active">All</button>
+    <button class="genre-pill">Action</button>
+    <button class="genre-pill">Romance</button>
+    <button class="genre-pill">Comedy</button>
+    <button class="genre-pill">Fantasy</button>
+    <button class="genre-pill">Isekai</button>
+    <button class="genre-pill">Shounen</button>
+    <button class="genre-pill">Seinen</button>
+    <button class="genre-pill">Drama</button>
+    <button class="genre-pill">Supernatural</button>
+    <button class="genre-pill">School</button>
+    <button class="genre-pill">Sci-Fi</button>
+    <button class="genre-pill">Horror</button>
+    <button class="genre-pill">Sports</button>
+    <button class="genre-pill">Slice of Life</button>
+  </div>
+
+  <!-- ── Latest Updates ─────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Latest Updates</h2>
+      <a class="section-link" href="#">View all →</a>
+    </div>
+    <div class="poster-grid" id="latest-grid"></div>
+  </section>
+
+  <!-- ── Trending Now ───────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Trending Now</h2>
+      <a class="section-link" href="#">View all →</a>
+    </div>
+    <div class="ranked-grid" id="ranked-grid"></div>
+  </section>
+
+  <!-- ── Most Viewed ───────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Most Viewed</h2>
+      <a class="section-link" href="#">View all →</a>
+    </div>
+    <div class="anime-list" id="viewed-list"></div>
+  </section>
+
+  <!-- ── Top Picks ──────────────────────────────── -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Top Picks for You</h2>
+      <a class="section-link" href="#">Refresh →</a>
+    </div>
+    <div class="poster-grid" id="picks-grid"></div>
+  </section>
+
+  <!-- ── Footer ───────────────────────────────── -->
+  <footer class="footer">
+    <p>© 2026 <a href="#">ZerAnime</a> — Fast, free anime streaming catalog</p>
+    <p style="margin-top:4px">Not affiliated with any official distributor. Content sourced from public indices.</p>
+  </footer>
+
+  <script>
+    /* ── Sample anime data ────────────────────────────── */
+    const POSTER_BASE = 'https://cdn.alfisy.my.id/direct/Yl1qZJ.png';
+    const posters = [
+      'https://cdn.alfisy.my.id/direct/Yl1qZJ.png',
+      'https://cdn.alfisy.my.id/direct/2a1f3b4c.png',
+      'https://cdn.alfisy.my.id/direct/3b2c4d5e.png',
+      'https://cdn.alfisy.my.id/direct/4c3d5e6f.png',
+      'https://cdn.alfisy.my.id/direct/5d4e6f7g.png',
+      'https://cdn.alfisy.my.id/direct/6e5f7g8h.png',
+    ];
+
+    const animeData = [
+      { id:1,  title:'Solo Leveling',        type:'TV',    year:2024, eps:12,  score:8.9, genres:['Action','Fantasy'],   status:'ongoing',  epLabel:'Ep 12', newEp:true,  bg:'https://i.imgur.com/Jx9KQ3m.jpg' },
+      { id:2,  title:'Dandadan',            type:'TV',    year:2024, eps:11,  score:8.7, genres:['Comedy','Supernatural'], status:'ongoing',  epLabel:'Ep 11', newEp:true,  bg:'https://i.imgur.com/KzQq3hm.jpg' },
+      { id:3,  title:'Blue Lock',           type:'TV',    year:2024, eps:24,  score:8.5, genres:['Sports','Drama'],    status:'ongoing',  epLabel:'Ep 22', newEp:false, bg:'https://i.imgur.com/M3n7B2c.jpg' },
+      { id:4,  title:'Frieren',             type:'TV',    year:2023, eps:28,  score:9.1, genres:['Fantasy','Drama'],    status:'completed',epLabel:'Ep 28', newEp:false, bg:'https://i.imgur.com/RkP5Q8w.jpg' },
+      { id:5,  title:'My Hero Academia',    type:'TV',    year:2024, eps:25,  score:8.2, genres:['Action','Shounen'],  status:'ongoing',  epLabel:'Ep 22', newEp:false, bg:'https://i.imgur.com/Sj6Kx4n.jpg' },
+      { id:6,  title:'Demon Slayer',        type:'TV',    year:2024, eps:11,  score:8.6, genres:['Action','Supernatural'], status:'ongoing', epLabel:'Ep 11', newEp:true,  bg:'https://i.imgur.com/Vj5K8x4.jpg' },
+      { id:7,  title:'Spy x Family',        type:'TV',    year:2024, eps:24,  score:8.8, genres:['Comedy','Action'],   status:'completed',epLabel:'Ep 24', newEp:false, bg:'https://i.imgur.com/Hj4K7m2.jpg' },
+      { id:8,  title:'Jujutsu Kaisen',      type:'TV',    year:2024, eps:23,  score:8.4, genres:['Action','Supernatural'], status:'ongoing', epLabel:'Ep 21', newEp:false, bg:'https://i.imgur.com/Pk4N6r8.jpg' },
+      { id:9,  title:'Wind Breaker',        type:'TV',    year:2024, eps:13,  score:8.1, genres:['Sports','Action'],  status:'ongoing',  epLabel:'Ep 8',  newEp:false, bg:'https://i.imgur.com/Qm3K5t9.jpg' },
+      { id:10, title:'Mushoku Tensei',      type:'TV',    year:2024, eps:12,  score:8.6, genres:['Fantasy','Isekai'],   status:'ongoing',  epLabel:'Ep 12', newEp:true,  bg:'https://i.imgur.com/Xn7K2p6.jpg' },
+      { id:11, title:'Kaiju No.8',          type:'TV',    year:2024, eps:12,  score:7.9, genres:['Action','Sci-Fi'],   status:'ongoing',  epLabel:'Ep 10', newEp:false, bg:'https://i.imgur.com/Yp8K3q7.jpg' },
+      { id:12, title:'Sakamoto Days',      type:'TV',    year:2025, eps:12,  score:8.3, genres:['Action','Comedy'],   status:'ongoing',  epLabel:'Ep 7',  newEp:false, bg:'https://i.imgur.com/Zq9K4r8.jpg' },
+      { id:13, title:'Chainsaw Man',        type:'TV',    year:2023, eps:12,  score:8.5, genres:['Action','Horror'],  status:'completed',epLabel:'Ep 12', newEp:false, bg:'https://i.imgur.com/Ar5K6s9.jpg' },
+      { id:14, title:'Oshi no Ko',          type:'TV',    year:2024, eps:11,  score:8.9, genres:['Drama','Supernatural'], status:'ongoing', epLabel:'Ep 11', newEp:true,  bg:'https://i.imgur.com/Bs6K7t1.jpg' },
+      { id:15, title:'Dr. Stone',           type:'TV',    year:2024, eps:11,  score:8.2, genres:['Sci-Fi','Adventure'], status:'ongoing',  epLabel:'Ep 9',  newEp:false, bg:'https://i.imgur.com/Ct7K8u2.jpg' },
+      { id:16, title:'Vinland Saga',        type:'TV',    year:2024, eps:24,  score:8.7, genres:['Action','Drama'],    status:'ongoing',  epLabel:'Ep 18', newEp:false, bg:'https://i.imgur.com/Du8K9v3.jpg' },
+      { id:17, title:'Mushoku Tensei S2',  type:'TV',    year:2024, eps:13,  score:8.5, genres:['Fantasy','Isekai'],  status:'completed',epLabel:'Ep 13', newEp:false, bg:'https://i.imgur.com/Ev9L1w4.jpg' },
+      { id:18, title:'Dungeon Meshi',       type:'TV',    year:2024, eps:24,  score:8.6, genres:['Fantasy','Comedy'],  status:'completed',epLabel:'Ep 24', newEp:false, bg:'https://i.imgur.com/Fw0M2x5.jpg' },
+    ];
+
+    /* ── Render helpers ──────────────────────────────── */
+    function getPosterFallback(i) {
+      return `https://picsum.photos/seed/anime${i+1}/200/267`;
+    }
+
+    function buildPosterCard(a) {
+      const posterImg = getPosterFallback(a.id);
+      return `
+        <article class="poster-card" onclick="openAnime(${a.id})">
+          <div class="poster-thumb">
+            <img src="${posterImg}" alt="${a.title}" loading="lazy" onerror="this.src='${posterFallback}'">
+            <span class="ep-badge${a.newEp ? ' new' : ''}">${a.epLabel}</span>
+            <span class="score-badge">★ ${a.score}</span>
+            <div class="quick-watch">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+          </div>
+          <div class="poster-info">
+            <div class="poster-title">${a.title}</div>
+            <div class="poster-sub">
+              <span class="status-dot ${a.status}"></span>
+              ${a.year} &bull; ${a.genres[0]}
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function buildRankedCard(a, rank) {
+      const posterImg = getPosterFallback(a.id);
+      return `
+        <article class="ranked-card" onclick="openAnime(${a.id})">
+          <div class="rank-num">${rank}</div>
+          <div class="ranked-thumb">
+            <img src="${posterImg}" alt="${a.title}" loading="lazy">
+          </div>
+          <div class="ranked-info">
+            <div class="r-title">${a.title}</div>
+            <div class="r-meta">${a.type} &bull; ★ ${a.score} &bull; ${a.year}</div>
+          </div>
+        </article>`;
+    }
+
+    function buildListRow(a) {
+      const posterImg = getPosterFallback(a.id);
+      return `
+        <article class="anime-row" onclick="openAnime(${a.id})">
+          <div class="row-thumb">
+            <img src="${posterImg}" alt="${a.title}" loading="lazy">
+          </div>
+          <div class="row-info">
+            <div class="row-title">${a.title}</div>
+            <div class="row-meta">${a.year} &bull; ${a.genres.join(', ')}</div>
+          </div>
+          <div class="row-ep">${a.epLabel}</div>
+        </article>`;
+    }
+
+    /* ── Populate sections ──────────────────────────── */
+    const latestGrid = document.getElementById('latest-grid');
+    latestGrid.innerHTML = animeData.slice(0, 12).map(buildPosterCard).join('');
+
+    const rankedGrid = document.getElementById('ranked-grid');
+    rankedGrid.innerHTML = animeData
+      .sort((a,b) => b.score - a.score)
+      .slice(0, 6)
+      .map((a,i) => buildRankedCard(a, i+1))
+      .join('');
+
+    const viewedList = document.getElementById('viewed-list');
+    viewedList.innerHTML = animeData
+      .filter(a => a.status !== 'completed')
+      .slice(0, 6)
+      .map(buildListRow)
+      .join('');
+
+    const picksGrid = document.getElementById('picks-grid');
+    picksGrid.innerHTML = animeData
+      .filter(a => a.score >= 8.5)
+      .slice(0, 8)
+      .map(buildPosterCard)
+      .join('');
+
+    /* ── Hero spotlight ──────────────────────────────── */
+    const hero = animeData[0]; // Solo Leveling
+    document.getElementById('hero-title').textContent = hero.title;
+    document.getElementById('hero-type').textContent = hero.type;
+    document.getElementById('hero-year').textContent = hero.year;
+    document.getElementById('hero-eps').textContent = `${hero.eps} eps`;
+    document.getElementById('hero-score').textContent = `★ ${hero.score}`;
+    document.getElementById('hero-desc').textContent = `A legendary hunter awakens from death to become the sole survivor of a world where dungeons spawn monsters—and only the strongest survive. With enemies on all sides, Sung Jinwoo must level up or be consumed.`;
+
+    const heroBg = document.getElementById('hero-bg');
+    heroBg.style.backgroundImage = `url('https://i.imgur.com/Jx9KQ3m.jpg')`;
+
+    /* ── Genre pill interaction ──────────────────────── */
+    document.querySelectorAll('.genre-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.genre-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const genre = pill.textContent;
+        if (genre === 'All') {
+          latestGrid.innerHTML = animeData.slice(0, 12).map(buildPosterCard).join('');
+        } else {
+          latestGrid.innerHTML = animeData
+            .filter(a => a.genres.some(g => g.toLowerCase() === genre.toLowerCase()))
+            .map(buildPosterCard)
+            .join('');
+        }
+      });
+    });
+
+    /* ── Navigation stubs ────────────────────────────── */
+    function openAnime(id) {
+      const a = animeData.find(x => x.id === id) || animeData[0];
+      alert(`Opening: ${a.title} (${a.epLabel})`);
+    }
+
+    /* ── Search ─────────────────────────────────────── */
+    const searchInput = document.querySelector('.header-search input');
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) {
+        latestGrid.innerHTML = animeData.slice(0, 12).map(buildPosterCard).join('');
+        return;
+      }
+      latestGrid.innerHTML = animeData
+        .filter(a => a.title.toLowerCase().includes(q) || a.genres.some(g => g.toLowerCase().includes(q)))
+        .map(buildPosterCard)
+        .join('');
+    });
+
+    /* ── Playful easter egg ──────────────────────────── */
+    document.querySelector('.logo').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.body.style.transition = 'filter 0.3s';
+      document.body.style.filter = 'hue-rotate(240deg) saturate(2)';
+      setTimeout(() => { document.body.style.filter = ''; }, 1200);
+    });
+  </script>
+</body>
+</html>
