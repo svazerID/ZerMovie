@@ -217,6 +217,7 @@ const MIME = {
   '.js':'application/javascript',
   '.css':'text/css',
   '.json':'application/json',
+  '.webmanifest':'application/manifest+json',
   '.png':'image/png',
   '.jpg':'image/jpeg',
   '.jpeg':'image/jpeg',
@@ -236,7 +237,8 @@ function serveStatic(res, filePath, mime) {
     }
     res.writeHead(200, {
       'Content-Type': mime,
-      'Cache-Control': 'public, max-age=3600'
+      // sw.js must always revalidate (incl. through proxies/CDNs) so installed PWAs get updates
+      'Cache-Control': path.basename(filePath) === 'sw.js' ? 'no-cache' : 'public, max-age=3600'
     });
     res.end(data);
   });

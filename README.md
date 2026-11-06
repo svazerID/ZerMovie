@@ -18,6 +18,10 @@ serves a single-page vanilla-JS frontend with a native streaming player.
   playback isn't blocked.
 - **Responsive** — mobile-first, hamburger sidebar and bottom-nav on screens
   ≤768px.
+- **PWA / Android app** — installable from Chrome on Android (web app
+  manifest, maskable icons, standalone display). A service worker caches the
+  app shell so the installed app still opens offline; an install banner and
+  the sidebar's "Install Aplikasi" item trigger the install prompt.
 - Branding toggle: user-facing copy says "movie", internal hash routes stay
   `#!/anime/...`.
 
@@ -44,10 +48,25 @@ There is **no build step** — edit `public/index.html` directly and reload.
 ## Project structure
 
 ```
-├── server.js          # HTTP server: /api/* routes + static serving
-├── public/index.html  # SPA frontend (all CSS + JS inline, no build)
-└── index.html         # Non-served draft/staging copy
+├── server.js                    # HTTP server: /api/* routes + static serving
+├── public/index.html            # SPA frontend (all CSS + JS inline, no build)
+├── public/manifest.webmanifest  # PWA manifest (name, colors, icons)
+├── public/sw.js                 # Service worker (offline app shell)
+├── public/icons/                # PWA icons (192px + maskable 192/512px)
+└── index.html                   # Non-served draft/staging copy
 ```
+
+## Android app (PWA)
+
+1. Deploy behind **HTTPS** (required for installing; `http://localhost` works
+   for local testing) and open the site in Chrome on Android.
+2. Tap **Install** on the banner, **Install Aplikasi** in the sidebar, or
+   Chrome menu ⋮ → **Install app**.
+3. ZerMovie is added to the home screen / app drawer and opens full screen.
+
+The service worker only caches same-origin static files (pages are
+network-first); `/api/*` and cross-origin requests always go to the network.
+Bump `CACHE` in `public/sw.js` when the precached `SHELL` list changes.
 
 ## API routes
 

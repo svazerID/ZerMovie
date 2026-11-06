@@ -7,6 +7,9 @@
   <link rel="icon" href="/icon.png" sizes="any">
   <link rel="icon" href="/icon.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="ZerMovie — Streaming movie subtitle Indonesia terbaru dan terlengkap.">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -709,6 +712,37 @@
       .rank-grid { grid-template-columns: repeat(5, 1fr); }
       .cards-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); }
     }
+
+    /* ── PWA install (banner + sidebar item) ──────────── */
+    .pwa-banner {
+      position: fixed; left: 12px; right: 12px; bottom: 16px; z-index: 300;
+      max-width: 420px; margin: 0 auto;
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 8px 10px 10px; border-radius: 14px;
+      background: var(--surface2); border: 1px solid var(--border);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+      animation: pwa-in 0.25s ease;
+    }
+    @keyframes pwa-in { from { opacity: 0; transform: translateY(12px); } }
+    .pwa-banner > img { width: 40px; height: 40px; border-radius: 10px; background: var(--bg); flex-shrink: 0; }
+    .pwa-txt { flex: 1; min-width: 0; }
+    .pwa-title { font-size: 13px; font-weight: 700; }
+    .pwa-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+    .pwa-sub b { color: var(--text); }
+    .pwa-banner .btn-pri { padding: 8px 14px; font-size: 12px; box-shadow: none; flex-shrink: 0; }
+    .pwa-x {
+      width: 28px; height: 28px; flex-shrink: 0; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      background: transparent; color: var(--text-dim);
+    }
+    .pwa-x:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    button.side-link { width: 100%; background: transparent; line-height: inherit; text-align: left; }
+    @media (max-width: 768px) {
+      .pwa-banner { bottom: calc(72px + env(safe-area-inset-bottom)); }
+    }
+    @media (display-mode: standalone) {
+      .side-install { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -717,6 +751,7 @@
 <script>
 // ─── SVG Icons ───────────────────────────────────────────────────────────────
 const I = {
+  download: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>`,
   search: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>`,
   play:   `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>`,
   back:   `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`,
@@ -893,6 +928,7 @@ function hdr(curPage) {
       `<a class="side-link ${href===curHref?'active':''}" href="${href}">${icon}<span>${label}</span></a>`
     ).join('')}
     <div class="side-sep"></div>
+    <button class="side-link side-install" data-pwa-install>${I.download}<span>Install Aplikasi</span></button>
     <div class="side-foot">© 2026 ZerMovie</div>
   </aside>`;
 }
@@ -1457,6 +1493,68 @@ function bindSidebar() {
   overlay.addEventListener('click', close);
   side.querySelectorAll('.side-link').forEach(a => a.addEventListener('click', close));
 }
+
+// ─── PWA (service worker + install prompt) ───────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+
+const PWA_KEY = 'zm_pwa_dismissed';
+let installPrompt = null;
+
+function showInstallBanner(manual) {
+  if (matchMedia('(display-mode: standalone)').matches) return;
+  hideInstallBanner();
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const sub = !manual ? 'Buka langsung dari layar utama, layar penuh tanpa bar browser.'
+    : ios ? 'Ketuk <b>Bagikan</b>, lalu pilih <b>Tambahkan ke Layar Utama</b>.'
+    : 'Buka menu browser <b>⋮</b>, lalu pilih <b>Instal aplikasi</b> atau <b>Tambahkan ke layar utama</b>.';
+  const el = document.createElement('div');
+  el.id = 'pwa-banner';
+  el.className = 'pwa-banner';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-label', 'Install aplikasi ZerMovie');
+  el.innerHTML = `<img src="/icon.png" alt="">
+    <div class="pwa-txt">
+      <div class="pwa-title">Install aplikasi ZerMovie</div>
+      <div class="pwa-sub">${sub}</div>
+    </div>
+    ${manual ? '' : '<button class="btn-pri" data-pwa-install>Install</button>'}
+    <button class="pwa-x" data-pwa-close aria-label="Tutup">${I.x}</button>`;
+  document.body.appendChild(el);
+}
+
+function hideInstallBanner() {
+  document.getElementById('pwa-banner')?.remove();
+}
+
+// Chrome/Android: stash the prompt for our own UI instead of the mini-infobar.
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  installPrompt = e;
+  const dismissedAt = +localStorage.getItem(PWA_KEY) || 0;
+  if (Date.now() - dismissedAt > 7 * 864e5) showInstallBanner(false);
+});
+
+window.addEventListener('appinstalled', () => {
+  installPrompt = null;
+  hideInstallBanner();
+});
+
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-pwa-close]')) {
+    localStorage.setItem(PWA_KEY, Date.now());
+    hideInstallBanner();
+  } else if (e.target.closest('[data-pwa-install]')) {
+    // no prompt from the browser (other browser / not eligible yet): show manual steps
+    if (!installPrompt) return showInstallBanner(true);
+    hideInstallBanner();
+    const p = installPrompt;
+    installPrompt = null; // a prompt event can only be used once
+    p.prompt();
+    p.userChoice.then(c => { if (c.outcome === 'dismissed') localStorage.setItem(PWA_KEY, Date.now()); });
+  }
+});
 
 render();
 </script>

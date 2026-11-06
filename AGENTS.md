@@ -54,6 +54,12 @@ Veloflix (`veloflix.my.id`) catalog API and serves a static SPA frontend.
 - Single page: all CSS in one `<style>` block (`:root` custom properties for
   the dark theme), vanilla JS in a trailing `<script>` that fetches the API
   and renders with template strings. No framework, no build.
+- PWA (installable Android app): `public/manifest.webmanifest`, `public/sw.js`
+  and `public/icons/` (maskable icons = black background, logo inside the 80%
+  safe zone). The SW only caches same-origin static files (pages
+  network-first); `/api/*` and cross-origin requests are never intercepted.
+  Bump `CACHE` in `sw.js` when the precached `SHELL` list changes.
+  `server.js` serves `sw.js` with `Cache-Control: no-cache`.
 - Popular sections (Latest / Trending / Most Viewed / Top Picks) exist as
   placeholders and currently render a hardcoded `animeData` sample array, not
   live `/api/feed` data.
