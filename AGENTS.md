@@ -66,6 +66,10 @@ Veloflix (`veloflix.my.id`) catalog API and serves a static SPA frontend.
 - Template strings go straight into `innerHTML`: wrap API/URL text in `esc()`,
   and navigate with `<a href>` or `data-href` (one delegated click handler),
   never `onclick="location.hash='…'"` built from titles or URL parts.
+- The brand is one word, "ZerMovie": render it as
+  `<span class="brand">Zer<span>Movie</span></span>`. A bare
+  `Zer<span>Movie</span>` inside a flex parent becomes two flex items and
+  gets the parent's `gap` ("Zer Movie").
 - PWA (installable Android app): `public/manifest.webmanifest`, `public/sw.js`
   and `public/icons/` (maskable icons = black background, logo inside the 80%
   safe zone). The SW only caches same-origin static files (pages
