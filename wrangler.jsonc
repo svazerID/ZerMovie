@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zermovie",
+  "main": "worker.js",
+  "compatibility_date": "2026-11-04",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    // only public/ is deployed: not the draft root index.html or server code
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  }
+}

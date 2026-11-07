@@ -48,13 +48,31 @@ There is **no build step** — edit `public/index.html` directly and reload.
 ## Project structure
 
 ```
-├── server.js                    # HTTP server: /api/* routes + static serving
+├── server.js                    # Node server: static files + /api/* (via api.js)
+├── api.js                       # Veloflix engine + /api/* routes (Node & Workers)
+├── worker.js                    # Cloudflare Workers entry: /api/* → api.js
+├── wrangler.jsonc               # Workers config: public/ as static assets
 ├── public/index.html            # SPA frontend (all CSS + JS inline, no build)
 ├── public/manifest.webmanifest  # PWA manifest (name, colors, icons)
 ├── public/sw.js                 # Service worker (offline app shell)
 ├── public/icons/                # PWA icons (192px + maskable 192/512px)
 └── index.html                   # Non-served draft/staging copy
 ```
+
+## Deploy to Cloudflare Workers
+
+`wrangler.jsonc` deploys `public/` as static assets (SPA fallback to
+`index.html`) and runs `worker.js` for `/api/*`, using the same `api.js` as
+the Node server. Wrangler runs through `npx`; nothing to install.
+
+```bash
+npx wrangler dev      # local Workers preview on http://localhost:8787
+npx wrangler deploy   # deploy the "zermovie" Worker
+```
+
+Keep this config. Deploying without it (e.g. a Wrangler-generated
+assets-only config for the repo root) serves the draft root `index.html`,
+exposes the source files, and leaves `/api/*` returning 404.
 
 ## Android app (PWA)
 
