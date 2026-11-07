@@ -66,7 +66,8 @@
       width: 30px; height: 30px; border-radius: 8px;
       object-fit: contain;
     }
-    .hdr-logo span { color: var(--purple-lt); }
+    /* one inline box: as separate flex items, "Zer" and "Movie" got the parent's gap */
+    .brand span { color: var(--purple-lt); }
     .hdr-nav { display: flex; align-items: center; gap: 2px; }
     .hdr-nav a {
       font-size: 12px; font-weight: 500; color: var(--text-dim);
@@ -113,7 +114,6 @@
     }
     .sidebar-logo { display: flex; align-items: center; gap: 8px; font-weight: 900; color: var(--text); }
     .sidebar-logo .hdr-logo-icon { width: 28px; height: 28px; }
-    .sidebar-logo span { color: var(--purple-lt); }
     .sidebar-close {
       width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
       background: transparent; border: none; border-radius: 8px; color: var(--text-dim); cursor: pointer;
@@ -609,7 +609,6 @@
       text-align: center;
     }
     .footer-logo { font-size: 16px; font-weight: 900; margin-bottom: 8px; }
-    .footer-logo span { color: var(--purple-lt); }
     .footer-desc { font-size: 11px; color: var(--text-dim); max-width: 400px; margin: 0 auto 10px; line-height: 1.6; }
     .footer-links { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
     .footer-links a { font-size: 11px; color: var(--text-dim); transition: color 0.15s; }
@@ -909,7 +908,7 @@ function hdr(curPage) {
     <button class="hdr-burger" id="hdr-burger" aria-label="Buka menu">${I.menu}</button>
     <a class="hdr-logo" href="#!/" onclick="location.hash='/';return false">
       <img class="hdr-logo-icon" src="/icon.png" alt="ZerMovie">
-      Zer<span>Movie</span>
+      <span class="brand">Zer<span>Movie</span></span>
     </a>
     <nav class="hdr-nav">
       <a href="#!/" class="${curPage==='home'?'active':''}">Home</a>
@@ -928,7 +927,7 @@ function hdr(curPage) {
   <div class="side-overlay" id="side-overlay"></div>
   <aside class="sidebar" id="sidebar" aria-label="Menu">
     <div class="sidebar-hd">
-      <div class="sidebar-logo"><img class="hdr-logo-icon" src="/icon.png" alt="ZerMovie">Zer<span>Movie</span></div>
+      <div class="sidebar-logo"><img class="hdr-logo-icon" src="/icon.png" alt="ZerMovie"><span class="brand">Zer<span>Movie</span></span></div>
       <button class="sidebar-close" id="side-close" aria-label="Tutup menu">${I.x}</button>
     </div>
     ${sideItems.map(([href,label,icon]) =>
@@ -1036,7 +1035,7 @@ function section(title, cards) {
 
 function footer() {
   return `<footer class="footer">
-    <div class="footer-logo">Zer<span>Movie</span></div>
+    <div class="footer-logo"><span class="brand">Zer<span>Movie</span></span></div>
     <p class="footer-desc">ZerMovie — Streaming movie subtitle Indonesia terbaru dan terlengkap. Update setiap hari dengan kualitas tinggi dan tanpa iklan.</p>
     <div class="footer-links">
       <a href="#!/">Home</a>
