@@ -772,11 +772,11 @@ function getRoute() {
   const h = location.hash || '#!/';
   if (h.startsWith('#!/anime/')) {
     const parts = h.slice(9).split('/');
-    return { name:'anime', slug: parts[0], tmdbId: parseInt(parts[1]), type: parts[2]||'movie', season: parseInt(parts[3]||'1'), episode: parseInt(parts[4]||'1') };
+    return { name:'anime', slug: parts[0], tmdbId: parseInt(parts[1]), type: parts[2] === 'tv' ? 'tv' : 'movie', season: parseInt(parts[3]||'1'), episode: parseInt(parts[4]||'1') };
   }
   if (h.startsWith('#!/watch/')) {
     const parts = h.slice(9).split('/');
-    return { name:'watch', type: parts[0], id: parseInt(parts[1]), season: parseInt(parts[2]||'1'), episode: parseInt(parts[3]||'1'), server: parts[4]||'0' };
+    return { name:'watch', type: parts[0] === 'tv' ? 'tv' : 'movie', id: parseInt(parts[1]), season: parseInt(parts[2]||'1'), episode: parseInt(parts[3]||'1'), server: parts[4]||'0' };
   }
   if (h.startsWith('#!/search/')) return { name:'search', q: decodeURIComponent(h.slice(10)) };
   if (h === '#!/search' || h === '#!/search/') return { name:'search', q:'' };
@@ -787,6 +787,13 @@ function getRoute() {
   return { name:'home' };
 }
 window.addEventListener('hashchange', render);
+
+// Non-link elements navigate via data-href: onclick="location.hash='…'" built from
+// titles/URL parts broke on ' (Grey's Anatomy) and ran JS injected through a link.
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-href]');
+  if (el) location.hash = el.dataset.href;
+});
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 async function api(path) {
@@ -854,7 +861,7 @@ function rankCard(item, rank) {
   const posterUrl = item.posterUrl || item.poster_url || poster(id);
   const slug = encodeURIComponent(title.replace(/\s+/g,'-'));
 
-  return `<div class="rank-card" onclick="location.hash='#!/anime/${slug}/${id}/${type}/1/1'">
+  return `<div class="rank-card" data-href="#!/anime/${slug}/${id}/${type}/1/1">
     <div class="rank-num">${rank}</div>
     <div class="rank-thumb"><img src="${posterUrl}" alt="${title}" loading="lazy" onerror="this.src='${poster(id)}'"></div>
     <div class="rank-info">
@@ -1185,23 +1192,23 @@ async function viewAnime(slug, tmdbId, type, season, episode) {
 
   $app.innerHTML = hdr('home') + `
     <button class="back-btn" onclick="history.back()">${I.back} Back</button>
-    <div class="detail-back"><img src="${backdrop}" alt="${detail.judul}" decoding="async" onerror="this.style.display='none'"></div>
+    <div class="detail-back"><img src="${esc(backdrop)}" alt="${esc(detail.judul)}" decoding="async" onerror="this.style.display='none'"></div>
     <div class="detail-hero fade-in">
-      <div class="detail-poster"><img src="${posterUrl}" alt="${detail.judul}" decoding="async" onerror="this.src='${poster(tmdbId)}'"></div>
+      <div class="detail-poster"><img src="${esc(posterUrl)}" alt="${esc(detail.judul)}" decoding="async" onerror="this.src='${poster(tmdbId)}'"></div>
       <div class="detail-info">
         <span class="type-chip ${typeClass(type)}" style="margin-bottom:6px;display:inline-block">${typeLabel(type)}</span>
-        <h1 class="detail-title">${detail.judul}</h1>
+        <h1 class="detail-title">${esc(detail.judul)}</h1>
         <div class="detail-meta">
-          ${detail.tahun ? `<span>${detail.tahun}</span><span class="detail-sep"></span>` : ''}
-          ${detail.rating ? `<span style="color:var(--gold)">★ ${detail.rating}</span><span class="detail-sep"></span>` : ''}
-          ${detail.bahasa_asli ? `<span>${detail.bahasa_asli}</span><span class="detail-sep"></span>` : ''}
-          ${detail.negara_asal ? `<span>${detail.negara_asal}</span>` : ''}
+          ${detail.tahun ? `<span>${esc(detail.tahun)}</span><span class="detail-sep"></span>` : ''}
+          ${detail.rating ? `<span style="color:var(--gold)">★ ${esc(detail.rating)}</span><span class="detail-sep"></span>` : ''}
+          ${detail.bahasa_asli ? `<span>${esc(detail.bahasa_asli)}</span><span class="detail-sep"></span>` : ''}
+          ${detail.negara_asal ? `<span>${esc(detail.negara_asal)}</span>` : ''}
         </div>
-        <div class="detail-genres">${genres.map(g => `<span class="genre-tag">${g}</span>`).join('')}</div>
-        <p class="detail-desc">${detail.sinopsis}</p>
+        <div class="detail-genres">${genres.map(g => `<span class="genre-tag">${esc(g)}</span>`).join('')}</div>
+        <p class="detail-desc">${esc(detail.sinopsis)}</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <a href="#!/watch/${type}/${tmdbId}/${season}/${episode}" class="btn-pri">${I.play} Watch Now</a>
-          ${detail.trailer_youtube ? `<a href="${detail.trailer_youtube}" target="_blank" class="btn-sec">Trailer</a>` : ''}
+          ${detail.trailer_youtube ? `<a href="${esc(detail.trailer_youtube)}" target="_blank" class="btn-sec">Trailer</a>` : ''}
         </div>
       </div>
     </div>
@@ -1210,11 +1217,11 @@ async function viewAnime(slug, tmdbId, type, season, episode) {
     <section class="section fade-in">
       <div class="section-hd"><h2 class="section-title">Episodes — Season ${season}</h2></div>
       ${seasons.length > 1 ? `<div class="seasons-row">${seasons.map(s =>
-        `<button class="season-btn${s.season_ke==season?' active':''}" onclick="location.hash='#!/anime/${slug}/${tmdbId}/${type}/${s.season_ke}/1'">${s.nama_season || `Season ${s.season_ke}`}</button>`
+        `<button class="season-btn${s.season_ke==season?' active':''}" data-href="#!/anime/${esc(slug)}/${tmdbId}/${type}/${s.season_ke}/1">${esc(s.nama_season || `Season ${s.season_ke}`)}</button>`
       ).join('')}</div>` : ''}
       <div class="ep-grid">${Array.from({length: seasons.find(s=>s.season_ke==season)?.jumlah_episode || 24},(_,i) => {
         const ep = i+1;
-        return `<div class="ep-card${ep==episode?' active':''}" onclick="location.hash='#!/anime/${slug}/${tmdbId}/${type}/${season}/${ep}'"><div class="ep-num">${ep}</div><div class="ep-lbl">Ep ${ep}</div></div>`;
+        return `<div class="ep-card${ep==episode?' active':''}" data-href="#!/anime/${esc(slug)}/${tmdbId}/${type}/${season}/${ep}"><div class="ep-num">${ep}</div><div class="ep-lbl">Ep ${ep}</div></div>`;
       }).join('')}</div>
     </section>` : ''}
 
@@ -1222,7 +1229,7 @@ async function viewAnime(slug, tmdbId, type, season, episode) {
     <section class="section fade-in">
       <div class="section-hd"><h2 class="section-title">Cast</h2></div>
       <div class="cast-row">${cast.map(c =>
-        `<div class="cast-card"><img src="${c.foto_profil || poster(Math.random())}" alt="${c.nama}" loading="lazy" decoding="async" onerror="this.src='https://picsum.photos/seed/actor/100/100'"><div class="cname">${c.nama}</div><div class="cchar">${c.peran}</div></div>`
+        `<div class="cast-card"><img src="${esc(c.foto_profil || poster(Math.random()))}" alt="${esc(c.nama)}" loading="lazy" decoding="async" onerror="this.src='https://picsum.photos/seed/actor/100/100'"><div class="cname">${esc(c.nama)}</div><div class="cchar">${esc(c.peran)}</div></div>`
       ).join('')}</div>
     </section>` : ''}
 
@@ -1244,9 +1251,9 @@ async function viewAnime(slug, tmdbId, type, season, episode) {
       <div class="sim-grid">${similar.map(item => {
         const stype = item.jenis === 'TV Series' ? 'tv' : 'movie';
         const stitle = encodeURIComponent((item.judul||'Unknown').replace(/\s+/g,'-'));
-        return `<div class="sim-card" onclick="location.hash='#!/anime/${stitle}/${item.id_tmdb}/${stype}/1/1'">
-          <div class="sim-thumb"><img src="${item.poster_url||poster(item.id_tmdb)}" alt="${item.judul}" loading="lazy" decoding="async" onerror="this.src='${poster(item.id_tmdb)}'"></div>
-          <div class="sim-title">${item.judul}</div>
+        return `<div class="sim-card" data-href="#!/anime/${stitle}/${item.id_tmdb}/${stype}/1/1">
+          <div class="sim-thumb"><img src="${esc(item.poster_url||poster(item.id_tmdb))}" alt="${esc(item.judul)}" loading="lazy" decoding="async" onerror="this.src='${poster(item.id_tmdb)}'"></div>
+          <div class="sim-title">${esc(item.judul)}</div>
         </div>`;
       }).join('')}</div>
     </section>` : ''}
@@ -1280,7 +1287,7 @@ async function viewWatch(type, id, season, episode, serverIdx) {
       </div>
       <div class="server-tabs">
         ${servers.map(([name, url], i) =>
-          `<button class="svr-tab${i===parseInt(serverIdx)?' active':''}" onclick="location.hash='#!/watch/${type}/${id}/${season}/${episode}/${i}'">${name.split('(')[0].trim()}</button>`
+          `<button class="svr-tab${i===parseInt(serverIdx)?' active':''}" data-href="#!/watch/${type}/${id}/${season}/${episode}/${i}">${name.split('(')[0].trim()}</button>`
         ).join('')}
       </div>
       <div class="player-wrap">
