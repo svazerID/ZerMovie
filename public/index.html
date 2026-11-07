@@ -874,17 +874,17 @@ function searchCard(item) {
   const posterUrl = item.posterUrl || item.poster_url || poster(id);
   const slug = encodeURIComponent(title.replace(/\s+/g,'-'));
 
-  return `<div class="search-card" onclick="location.hash='#!/anime/${slug}/${id}/${type}/1/1'">
+  return `<a class="search-card" href="#!/anime/${slug}/${id}/${type}/1/1">
     <div class="sc-thumb">
-      <img src="${posterUrl}" alt="${title}" loading="lazy" onerror="this.src='${poster(id)}'">
+      <img src="${esc(posterUrl)}" alt="${esc(title)}" loading="lazy" onerror="this.src='${poster(id)}'">
       <span class="type-chip ${typeClass(type)}" style="position:absolute;top:5px;left:5px">${typeLabel(type)}</span>
       ${ss ? `<span style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.55);border-radius:5px;padding:2px 5px;font-size:9px;font-weight:700;color:${scoreColor(ss)}">★ ${ss}</span>` : ''}
     </div>
     <div class="sc-info">
-      <div class="sc-title">${title}</div>
-      <div class="sc-meta">${[year, genres].filter(Boolean).join(' · ')}</div>
+      <div class="sc-title">${esc(title)}</div>
+      <div class="sc-meta">${esc([year, genres].filter(Boolean).join(' · '))}</div>
     </div>
-  </div>`;
+  </a>`;
 }
 
 // ─── Layout Components ─────────────────────────────────────────────────────────
@@ -1124,23 +1124,25 @@ async function viewSearch(q) {
   }
   $app.innerHTML = hdr('home') + `
     <button class="back-btn" onclick="history.back()">${I.back} Back</button>
-    <div class="loading" id="sl">Mencari "${q}"…</div>
+    <div class="loading" id="sl">Mencari "${esc(q)}"…</div>
     <div id="sr" style="display:none"></div>`;
+  document.getElementById('hdr-srch').value = q;
   bindSearch();
 
   const data = await api(`/api/search?q=${encodeURIComponent(q)}`);
+  if (getRoute().q !== q) return; // user moved on (e.g. a newer search) while this one loaded
   const sl = document.getElementById('sl');
   const sr = document.getElementById('sr');
 
   if (!data?.hasil?.length) {
     sl.style.display = 'none'; sr.style.display = 'block';
-    sr.innerHTML = `<div class="empty-msg">Tidak ada hasil untuk "<strong>${q}</strong>"</div>`;
+    sr.innerHTML = `<div class="empty-msg">Tidak ada hasil untuk "<strong>${esc(q)}</strong>"</div>`;
     return;
   }
 
   sl.style.display = 'none'; sr.style.display = 'block';
   sr.innerHTML = `<section class="section fade-in">
-    <div class="section-hd"><h2 class="section-title">${data.total_ditemukan} Hasil untuk "${q}"</h2></div>
+    <div class="section-hd"><h2 class="section-title">${data.total_ditemukan} Hasil untuk "${esc(q)}"</h2></div>
     <div class="srch-filters">
       <button data-f="all" class="on">Semua</button>
       <button data-f="movie">Movie</button>
@@ -1310,7 +1312,7 @@ async function viewGenre(g) {
   const $app = document.getElementById('app');
   $app.innerHTML = hdr('home') + `
     <button class="back-btn" onclick="history.back()">${I.back} Back</button>
-    <div class="loading">Memuat genre "${g}"…</div>
+    <div class="loading">Memuat genre "${esc(g)}"…</div>
     <div id="gres" style="display:none"></div>`;
 
   const data = await api(`/api/search?q=${encodeURIComponent(g)}`);
@@ -1319,11 +1321,11 @@ async function viewGenre(g) {
   load.style.display = 'block';
 
   if (!data?.hasil?.length) {
-    load.innerHTML = `<div class="empty-msg">Tidak ada movie untuk genre "${g}"</div>`;
+    load.innerHTML = `<div class="empty-msg">Tidak ada movie untuk genre "${esc(g)}"</div>`;
     return;
   }
   load.innerHTML = `<section class="section fade-in">
-    <div class="section-hd"><h2 class="section-title">${g} — ${data.total_ditemukan} movie</h2></div>
+    <div class="section-hd"><h2 class="section-title">${esc(g)} — ${data.total_ditemukan} movie</h2></div>
     <div class="search-grid">${data.hasil.map(searchCard).join('')}</div>
   </section>`;
 }
@@ -1372,17 +1374,22 @@ function suggestionRow(item) {
   const img   = item.posterUrl || item.poster_url || poster(id);
   const slug  = encodeURIComponent(title.replace(/\s+/g,'-'));
   return `<div class="srch-drop-row" data-slug="${slug}" data-id="${id}" data-type="${type}">
-    <img src="${img}" alt="" loading="lazy" onerror="this.style.display='none'">
+    <img src="${esc(img)}" alt="" loading="lazy" onerror="this.style.display='none'">
     <div style="flex:1;min-width:0">
-      <div class="sd-t">${title}</div>
+      <div class="sd-t">${esc(title)}</div>
       <div class="sd-m">${typeLabel(type)}${year ? ' · ' + year : ''}</div>
     </div>
   </div>`;
 }
 
 function bindSearch() {
-  const input = document.getElementById('hdr-srch') || document.getElementById('srch-page-input');
-  if (!input) return;
+  document.querySelectorAll('#hdr-srch, #srch-page-input').forEach(bindSearchInput);
+}
+
+const boundSearchInputs = new WeakSet();
+function bindSearchInput(input) {
+  if (boundSearchInputs.has(input)) return; // viewSearch binds early, render() binds again
+  boundSearchInputs.add(input);
   // dropdown anchors to a relatively-positioned wrapper around the input.
   // header input sits in .hdr-search; page input sits in .srch-box.
   const wrap = input.closest('.hdr-search') || input.parentElement;
@@ -1399,11 +1406,11 @@ function bindSearch() {
     const h = searchHistory();
     if (!h.length) { close(); return; }
     open().innerHTML = `<div class="sd-hd">Riwayat Pencarian</div>` +
-      h.map(q => `<div class="srch-drop-row" data-q="${q}">${I.clock}<span style="flex:1">${q}</span></div>`).join('');
+      h.map(q => `<div class="srch-drop-row" data-q="${esc(q)}">${I.clock}<span style="flex:1">${esc(q)}</span></div>`).join('');
   };
 
-  // tapping container focuses input
-  wrap.addEventListener('click', e => { if (e.target !== input) input.focus(); });
+  // tapping container focuses input (but not when picking a dropdown row)
+  wrap.addEventListener('click', e => { if (e.target !== input && !e.target.closest('.srch-drop')) input.focus(); });
 
   // delegate clicks inside dropdown
   wrap.addEventListener('click', e => {
@@ -1428,9 +1435,14 @@ function bindSearch() {
     }
   });
 
-  document.addEventListener('click', e => { if (!wrap.contains(e.target)) close(); });
+  const onDocClick = e => {
+    // every render replaces the header: drop this listener once its input is gone
+    if (!wrap.isConnected) return document.removeEventListener('click', onDocClick);
+    if (!wrap.contains(e.target)) close();
+  };
+  document.addEventListener('click', onDocClick);
 
-  input.addEventListener('focus', renderHistory);
+  input.addEventListener('focus', () => { if (!input.value.trim()) renderHistory(); });
 
   input.addEventListener('input', () => {
     clearTimeout(timer);
@@ -1444,7 +1456,7 @@ function bindSearch() {
       if (input.value.trim() !== q) return; // stale response
       if (!list.length) {
         box.innerHTML = `<div class="sd-empty">Tidak ada hasil</div>` +
-          `<div class="sd-cta">Lihat semua hasil "${q}"</div>`;
+          `<div class="sd-cta">Lihat semua hasil "${esc(q)}"</div>`;
         return;
       }
       box.innerHTML = list.slice(0,6).map(suggestionRow).join('') +
@@ -1478,6 +1490,7 @@ async function render() {
   }
   bindHero();
   bindSidebar();
+  bindSearch();
 }
 
 function bindSidebar() {
