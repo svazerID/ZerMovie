@@ -70,6 +70,10 @@ npx wrangler dev      # local Workers preview on http://localhost:8787
 npx wrangler deploy   # deploy the "zermovie" Worker
 ```
 
+Workers Builds deploys `main` with `npx wrangler deploy` and builds every other
+branch (pull requests) with `npx wrangler preview`, which fails unless
+`wrangler.jsonc` has a `previews` block. The block can stay empty.
+
 Keep this config. Deploying without it (e.g. a Wrangler-generated
 assets-only config for the repo root) serves the draft root `index.html`,
 exposes the source files, and leaves `/api/*` returning 404.

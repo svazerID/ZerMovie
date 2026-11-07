@@ -12,5 +12,8 @@
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"]
-  }
+  },
+  // required by `wrangler preview`, which Workers Builds runs for pull requests;
+  // may stay empty (assets and compatibility settings are inherited from above)
+  "previews": {}
 }
