@@ -171,6 +171,7 @@ const engine = {
     if (Array.isArray(d.recommendations) && d.recommendations.length) {
       out.film_serupa = d.recommendations.slice(0,5).map(r => ({
         id_tmdb: r.id, judul: r.title,
+        jenis: r.mediaType === 'tv' ? 'TV Series' : 'Movie',
         tahun: r.year || undefined,
         rating: r.rating ? `${r.rating.toFixed(1)} / 10` : undefined,
         poster_url: r.posterUrl || undefined

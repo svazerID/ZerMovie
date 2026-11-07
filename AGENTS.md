@@ -63,6 +63,9 @@ Veloflix (`veloflix.my.id`) catalog API and serves a static SPA frontend.
 - Single page: all CSS in one `<style>` block (`:root` custom properties for
   the dark theme), vanilla JS in a trailing `<script>` that fetches the API
   and renders with template strings. No framework, no build.
+- Template strings go straight into `innerHTML`: wrap API/URL text in `esc()`,
+  and navigate with `<a href>` or `data-href` (one delegated click handler),
+  never `onclick="location.hash='…'"` built from titles or URL parts.
 - PWA (installable Android app): `public/manifest.webmanifest`, `public/sw.js`
   and `public/icons/` (maskable icons = black background, logo inside the 80%
   safe zone). The SW only caches same-origin static files (pages
